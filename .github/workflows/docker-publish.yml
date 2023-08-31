@@ -17,6 +17,16 @@ jobs:
       - name: Check out the repo
         uses: actions/checkout@v3
 
+      - name: Set output Version
+        id: vars
+        run: echo "tag=${GITHUB_REF#refs/*/}" >> $GITHUB_OUTPUT
+
+      - name: Remove first character from tag
+        id: values
+        env: 
+          TAG: ${{steps.vars.outputs.tag}}
+        run: echo "version=${TAG:1}" >> $GITHUB_OUTPUT
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
 
@@ -39,3 +49,5 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+          build-args: |
+            version=${{ steps.values.outputs.version }}
